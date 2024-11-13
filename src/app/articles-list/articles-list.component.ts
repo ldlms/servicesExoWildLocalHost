@@ -23,15 +23,10 @@ article: Article = {
   stock: '',
 };
 
-articles!: Article[];
+articles: Article[] =  this.articleService.articles;
 
-ngOnInit() {
-  this.articles = this.articleService.getFromLocalStorage();
-  console.log(this.articles);
-}
-
-createArticle(){
- this.articleService.createArticle(this.article);
+createArticle(article:Article){
+ this.articleService.createArticle({...article});
 }
 deleteArticle(articleToDelete:Article){
   this.articleService.deleteArticle(articleToDelete);

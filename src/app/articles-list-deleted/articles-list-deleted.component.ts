@@ -10,11 +10,11 @@ import { ArticleService } from '../shared/article.service';
   templateUrl: './articles-list-deleted.component.html',
   styleUrl: './articles-list-deleted.component.css'
 })
-export class ArticlesListDeletedComponent implements OnInit{
+export class ArticlesListDeletedComponent {
   
   constructor(private articleService:ArticleService){}
 
-  articlesDeleted!: Article[];
+  articlesDeleted: Article[] = this.articleService.deletedArticles;
   article: Article = {
     id: "",
     name: '',
@@ -22,13 +22,8 @@ export class ArticlesListDeletedComponent implements OnInit{
     contact: '',
     stock: '',
   };
-
-  ngOnInit() {
-    this.articlesDeleted = this.articleService.getDeletedArticle();
-    console.log(this.articlesDeleted);
-  }
   
-  restore(id:string) {
-    this.articleService.restoreArticle(id);
+  restore(article:Article) {
+    this.articleService.restoreArticle(article);
   }
 }

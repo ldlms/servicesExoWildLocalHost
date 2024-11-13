@@ -8,49 +8,36 @@ export class ArticleService {
 
   constructor() { }
   
-  articles!: Article[];
+  articles: Article[] = this.getFromLocalStorage("articles");
+  deletedArticles: Article[] = this.getFromLocalStorage("deleted-articles");
 
   createArticle(article: Article) {
-    const existingArticles:Article[] = JSON.parse(localStorage.getItem('articles') || '[]')
-    existingArticles.push(article);
-    localStorage.setItem('articles', JSON.stringify(existingArticles));
+    this.articles.push(article);
+    localStorage.setItem('articles', JSON.stringify(this.articles)); // on passe de JS en String pour le stocker dans le LocalStorage
   }
 
-  getFromLocalStorage(): Article[] {
-
-    const stringData = localStorage.getItem('articles');
-    const articles: Article[] = JSON.parse(stringData || '[]');
+  getFromLocalStorage(item: string): Article[] {
+    const stringData = localStorage.getItem(item);
+    const articles: Article[] = JSON.parse(stringData || '[]'); 
     return articles;
   }
 
-  getDeletedArticle(){
-    const stringData = localStorage.getItem('deletedArticles');
-    const deletedArticles: Article[] = JSON.parse(stringData || '[]');
-    return deletedArticles;
+  deleteArticle(article:Article) {
+    const index = this.articles.findIndex((x) => x.id === article.id);
+    this.articles.splice(index, 1);
+    this.deletedArticles.push(article);
+    localStorage.setItem('articles', JSON.stringify(this.articles));  // on passe de JS en String pour le stocker dans le LocalStorage
+    localStorage.setItem('deleted-articles', JSON.stringify(this.deletedArticles));
   }
 
-  deleteArticle(articleToDelete:Article) {
-    const index = articleToDelete.id;
-    const deletedArticles:Article[] = JSON.parse(localStorage.getItem('deletedArticles') || '[]');
-    const existingArticles:Article[] = JSON.parse(localStorage.getItem('articles') || '[]');
-
-    const deletedArticle:Article = existingArticles.find((article:Article) => index == article.id) as Article;
-
-    deletedArticles.push(deletedArticle); 
-
-    const updatedArticles = existingArticles.filter((article:Article) => index != article.id);
-
-    localStorage.setItem('articles',JSON.stringify(updatedArticles));
-    localStorage.setItem('deletedArticles',JSON.stringify(deletedArticles));
+  deleteFromDeletedArticles(article: Article) {
+    const index = this.deletedArticles.findIndex((x) => x.id === article.id);
+    this.deletedArticles.splice(index, 1);
+    localStorage.setItem('deleted-articles', JSON.stringify(this.deletedArticles));
   }
 
-  restoreArticle(id:string){
-    const deletedArticle:Article[] = JSON.parse(localStorage.getItem('deletedArticles') || '[]');
-    const existingArticles:Article[] = JSON.parse(localStorage.getItem('articles') || '[]');
-    existingArticles.push(deletedArticle.find((article:Article) => id == article.id) as Article);
-    const deletedArticlesAfterRestore:Article[] = deletedArticle.filter((article:Article) => id != article.id);
-
-    localStorage.setItem('articles',JSON.stringify(existingArticles));
-    localStorage.setItem('deletedArticles',JSON.stringify(deletedArticlesAfterRestore));
+  restoreArticle(article:Article){
+    this.createArticle(article);
+    this.deleteFromDeletedArticles(article);
   }
 }
